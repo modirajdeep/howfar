@@ -67,4 +67,47 @@ Template.geocode.onRendered(function () {
 
 });
 
+Template.map.onCreated(function() {
 
+  $("#map").hide();
+
+  var setLat,setLng;
+  var setLat = Session.get("lat");
+  var setLng = Session.get("lng");
+
+  if(setLng&&setLat) {
+    delete Session.keys['lat'];
+    delete Session.keys['lng'];
+  }
+
+  var self = this;
+  self.autorun(function() {
+    var latLng = Geolocation.latLng();
+
+    var setLat = Session.get("lat");
+    var setLng = Session.get("lng");
+
+    if(latLng) {
+      var lat = latLng.lat;
+      var lng = latLng.lng;
+      if((lat!=setLat)||(lng!=setLng)) {
+        var key = "AIzaSyBKe48LvMYJPleqFNvbE1OF_Wt-k7rHLzY";
+        var url = "https://www.google.com/maps/embed/v1/place?key="+key+"&q="+lat+","+lng;
+        Session.set("lat", lat);
+        Session.set("lng", lng);
+        $("#map").attr('src',url).show();
+        var now = new Date();
+        var time = now.toString().substr(16,8);
+        $("#updatedAt").text(time);
+      }
+    }
+  });
+});
+
+
+  Template.map.helpers({
+    geolocationError: function() {
+      var error = Geolocation.error();
+      return error && error.message;
+    }
+  });

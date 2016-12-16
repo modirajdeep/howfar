@@ -6,4 +6,12 @@ https://maps.googleapis.com/maps/api/directions/json?units=metric&origin=28.6618
   </iframe>
 
 
+lat
+:
+28.5630104
+lng
+:
+77.2462516
+
+
 lat=28.6618976&lng=77.22739580000007&name=Delhi&lat=19.0759837&lng=72.87765590000004&name=Mumbai

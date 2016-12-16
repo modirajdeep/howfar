@@ -27,3 +27,4 @@ iron:router
 http
 themeteorchef:bert
 session
+mdg:geolocation
