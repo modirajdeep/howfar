@@ -1,0 +1,32 @@
+
+
+<template name="geoUpdate">
+<div class="page-header" align="center">
+    <h1>
+        <a href="/geolocate">
+          <button class="btn btn-default">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            See saved location
+          </button>
+        </a>
+        Current Location <small>last updated at: <span id="updatedAt"></span></small>
+    </h1>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        {{#unless geolocationError}}
+            <div class="embed-responsive embed-responsive-16by9">
+              <iframe id="map" class="embed-responsive-item" src="" allowfullscreen></iframe>
+            </div>
+        {{else}}
+            Geolocation failed: {{geolocationError}}
+        {{/unless}}
+    </div>
+</div>
+
+</template>
+
+
+

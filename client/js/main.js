@@ -8,6 +8,11 @@ import { ReactiveVar } from 'meteor/reactive-var';
       libraries: 'places'
     });
   });
+Meteor.subscribe("coordinates");
+
+Accounts.ui.config({
+  passwordSignupFields: 'USERNAME_ONLY',
+});
 
 Template.geocode.onRendered(function () {
 
@@ -67,9 +72,34 @@ Template.geocode.onRendered(function () {
 
 });
 
-Template.map.onCreated(function() {
+Template.geoLocate.onRendered(function () {
+  var id = Meteor.userId();
+  if(id!=undefined){
+    Meteor.call('getCoordinates',id, function(err, result){
+      if(err){
+        console.log(err);
+      }
+      else {
+        try {
+          lat = result[0].lat;
+          lng = result[0].lng;
+          var key = "AIzaSyBKe48LvMYJPleqFNvbE1OF_Wt-k7rHLzY";
+          var url = "https://www.google.com/maps/embed/v1/place?key="+key+"&q="+lat+","+lng;
+          $("#locateMap").attr('src',url);
+          createdAt = result[0].createdAt;
+        } catch(err) {
+          Bert.alert('Update location to view saved location.', 'danger', 'fixed-bottom');
+          Router.go('/geolocate/liveupdate');
+        }
+      }
+    });
+  }
+})
 
-  $("#map").hide();
+Template.geoUpdate.onCreated(function() {
+  if(!Meteor.userId()){
+    Router.go('/geolocate');
+  }
 
   var setLat,setLng;
   var setLat = Session.get("lat");
@@ -91,23 +121,29 @@ Template.map.onCreated(function() {
       var lat = latLng.lat;
       var lng = latLng.lng;
       if((lat!=setLat)||(lng!=setLng)) {
+
         var key = "AIzaSyBKe48LvMYJPleqFNvbE1OF_Wt-k7rHLzY";
         var url = "https://www.google.com/maps/embed/v1/place?key="+key+"&q="+lat+","+lng;
         Session.set("lat", lat);
         Session.set("lng", lng);
-        $("#map").attr('src',url).show();
+        $("#map").attr('src',url);
+        if($("#map").attr("src")==undefined){
+          // Reload page because map doesn't render
+          location.reload();
+        }
         var now = new Date();
         var time = now.toString().substr(16,8);
         $("#updatedAt").text(time);
+
+        Meteor.call('upsert', Meteor.userId(), lat, lng);
       }
     }
   });
 });
 
-
-  Template.map.helpers({
-    geolocationError: function() {
-      var error = Geolocation.error();
-      return error && error.message;
-    }
-  });
+Template.geoUpdate.helpers({
+  geolocationError: function() {
+    var error = Geolocation.error();
+    return error && error.message;
+  }
+});
